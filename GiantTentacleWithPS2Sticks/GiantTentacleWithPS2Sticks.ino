@@ -1,4 +1,10 @@
 
+// This runs the giant inflated tentacle with 2 servo-controlled air valves,
+// taking user input from a PS2 controller.
+// Code lives in https://github.com/jarkman/gianttentacle
+
+// It runs on a Nano
+
 #include <Servo.h>
 
 #include "bellows.h"

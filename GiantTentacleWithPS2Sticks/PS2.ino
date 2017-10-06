@@ -5,7 +5,7 @@
 
 #include <PS2X_lib.h>  //for v1.6
 
-// Connector pins
+// Connector pins on the PS2 controller are:
 // Data
 // Command
 // Motor power
@@ -16,7 +16,8 @@
 // ??
 // Ack
 
-// My wire pins
+// I used a 6-core ribbon to connect to these pins on the socket:
+
 // Data - I needed a 2k2 pullup to +5 to make this work on a Nano
 // Command
 // Gnd
