@@ -62,7 +62,7 @@ byte vibrate = 0;
 
 void PS2_setup(){
  
-  
+  lastStickMoveMillis = millis();
   
   delay(300);  //added delay to give wireless ps2 module some time to startup, before configuring it
    
@@ -112,10 +112,22 @@ void PS2_setup(){
    }
 }
 
+float prevStickVal[PSS_LY + 1]; 
+
+
 float mapStick(int stick)
 {
   int val = ps2x.Analog(stick);
   float result = fmap( val, 0, 255, -1.0, 1.0 );
+
+  // Stick zero position can be as much as +-0.2, so track pos of each stick to detect when a stick has been moved
+  if( fabs( prevStickVal[stick] - result) > 0.1)
+    lastStickMoveMillis = millis();
+
+  prevStickVal[stick] = result;
+  
+  //Serial.println( result );
+  
   return result;
 }
 
@@ -142,7 +154,37 @@ void PS2_loop() {
     stickLeftX = mapStick(PSS_LX);
     stickRightY = mapStick(PSS_RY); 
     stickRightX = mapStick(PSS_RX);  
+
+    if (ps2x.NewButtonState()) {        //will be TRUE if any button changes state (on to off, or off to on)
+      if(ps2x.Button(PSB_PAD_UP))
+        adjustWaveFraction( 0.1 );
+      if(ps2x.Button(PSB_PAD_DOWN))
+        adjustWaveFraction( -0.1 );
+      if(ps2x.Button(PSB_PAD_RIGHT))
+        adjustWavePeriod(-2000.0);
+      if(ps2x.Button(PSB_PAD_LEFT))
+        adjustWavePeriod(2000.0);
+       
+    }
   }
+}
+
+void adjustWaveFraction( float delta )
+{
+  waveFraction += delta;
+  waveFraction = constrain( waveFraction, 0.0, 1.0 );
+  Serial.print("waveFraction ");
+  Serial.println(waveFraction);
+  
+}
+
+void adjustWavePeriod( float delta )
+{
+  wavePeriod += delta;
+  wavePeriod = constrain( wavePeriod, 1000.0, 60000.0 );
+  Serial.print("wavePeriod ");
+  Serial.println(wavePeriod);
+  
 }
 
 void PS2_loop_verbose() {

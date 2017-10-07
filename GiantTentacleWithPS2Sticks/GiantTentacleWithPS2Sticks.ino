@@ -20,6 +20,8 @@ int controlPotPin = 0;
 float servoAngle;
 
 float wavePeriod = 10000.0; // in millis
+float waveFraction = 0.1; // 0 to 1.0
+
 float waveAmplitude = 1.0; // 0 to 1.0
 long waveStartT = 0;
 
@@ -29,6 +31,8 @@ float stickLeftX = 0;
 float stickRightY = 0;
 float stickRightX = 0;
 
+long lastStickMoveMillis = 0; // time when stick was last moved
+ 
 void setup() {
 
   Serial.begin(115200);
@@ -55,18 +59,28 @@ void loop() {
   float controlVal = analogRead(controlPotPin);   
 
   // waveFraction sets the amount of autowave we are going to add to the stick motion
-  float waveFraction = fmap(controlVal, 0.0,905.0, 0.0, 1.0); // magic numbers for control pot
-  float tipPhaseDelay = fmap(waveFraction, 0.0, 1.0, PI / 2.0, 0.0 ); // 90 degrees delay at small amplitude, for a wiggle, no delay at large amplitude, for a whole-tentacle curl
+  //float waveFraction = fmap(controlVal, 0.0,905.0, 0.0, 1.0); // magic numbers for control pot
 
-  wavePeriod = fmap( waveFraction, 0.0, 1.0, 10000.0, 20000.0 );
+  float effectiveWaveFraction = waveFraction;
+
+  long stickDelay = millis() - lastStickMoveMillis; // how long since we last wiggled the stick ?
+  if( stickDelay > 0 && stickDelay < 20000 )
+    effectiveWaveFraction *= (float) (stickDelay + 2000) / (20000.0 + 2000.0); // fade back in over 20 secs, but always keep 10%
+
+  //Serial.println(effectiveWaveFraction);
   
-  baseBellows.drive(stickLeftX + waveFraction * wave(0));
-  tipBellows.drive(stickRightX + waveFraction * wave(tipPhaseDelay));
+  float tipPhaseDelay = fmap( effectiveWaveFraction, 0.0, 1.0, - PI / 2.0, 0.0 ); // 90 degrees delay at small amplitude, for a wiggle, no delay at large amplitude, for a whole-tentacle curl
 
+  //wavePeriod = fmap( waveFraction, 0.0, 1.0, 10000.0, 20000.0 );
+  
+  baseBellows.drive(stickLeftX +  effectiveWaveFraction * wave(0));
+  tipBellows.drive(stickRightX +  effectiveWaveFraction * wave(tipPhaseDelay));
+
+  /*
    Serial.print(baseBellows.servoAngle);
    Serial.print("   ");
    Serial.println(tipBellows.servoAngle);
- 
+ */
    PS2_loop();
    //PS2_loop_verbose();   
    delay( 50 );               
