@@ -118,7 +118,7 @@ float prevStickVal[PSS_LY + 1];
 float mapStick(int stick)
 {
   int val = ps2x.Analog(stick);
-  float result = fmap( val, 0, 255, -1.0, 1.0 );
+  float result = fmap( val, 0, 255, 1.0, -1.0 );
 
   // Stick zero position can be as much as +-0.2, so track pos of each stick to detect when a stick has been moved
   if( fabs( prevStickVal[stick] - result) > 0.1)
