@@ -72,9 +72,12 @@ void loop() {
   float tipPhaseDelay = fmap( effectiveWaveFraction, 0.0, 1.0, - PI / 2.0, 0.0 ); // 90 degrees delay at small amplitude, for a wiggle, no delay at large amplitude, for a whole-tentacle curl
 
   //wavePeriod = fmap( waveFraction, 0.0, 1.0, 10000.0, 20000.0 );
+
+
+  float tipDrive = stickLeftX * (1.5 * stickLeftY - 0.5) + stickRightX;
   
   baseBellows.drive(stickLeftX +  effectiveWaveFraction * wave(0));
-  tipBellows.drive(stickRightX +  effectiveWaveFraction * wave(tipPhaseDelay));
+  tipBellows.drive(tipDrive +  effectiveWaveFraction * wave(tipPhaseDelay));
 
   /*
    Serial.print(baseBellows.servoAngle);
