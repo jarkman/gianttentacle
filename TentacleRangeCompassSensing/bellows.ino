@@ -8,15 +8,21 @@ Bellows::Bellows( Servo _servo )
   this->servo = _servo;
   error = -2;
   targetFraction = 0.0;
+  nodes[0] = NULL;
+  nodes[1] = NULL;
 }
 
 void Bellows::target( float _targetFraction ) // 0 is off, 1.0 is full-left, -1.0 is full-right
 {
   targetFraction = _targetFraction;
+  
 }
 
 void Bellows::loop()
 {
+  if( nodes[0] == NULL || nodes[1]==NULL )
+    return;
+    
   float currentFraction = (nodes[0]->relativeAngle + nodes[1]->relativeAngle) /  (2.0 * MAX_BELLOWS_ANGLE);
 
   error = targetFraction - currentFraction;

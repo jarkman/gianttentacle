@@ -12,8 +12,15 @@
 
 
 // Wiring:
+
 // Nano A4 to SDA on the mux
 // Nano A5 to SCL on the mux
+
+// PS2 controller - 4 pins, 10,11,12,13
+
+// Servos - 8,9 
+
+
 
 // Each node has one compass sensor and either two or zero rangers
 
@@ -29,7 +36,8 @@
 
 #include "bellows.h"
 
-boolean trace = true;
+boolean trace = false;          // activity tracing for finding crashes
+boolean enableBellows = false;  // turn on/off bellows code
 
 void setupNodes();
 void loopNodes();

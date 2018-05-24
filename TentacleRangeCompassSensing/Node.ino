@@ -36,13 +36,13 @@ void Node::log()
   Serial.print(", ");
   if(leftRanger)
   {
-    Serial.print(leftRange);
+    Serial.print(leftRange/10.0);
     Serial.print(", ");
   }
 
   if(rightRanger)
   {
-    Serial.print(rightRange);
+    Serial.print(rightRange/10.0);
     Serial.print(", ");
   }
 }
@@ -98,7 +98,8 @@ void Node::setupRanger(VL53L0X *ranger)
 // - higher speed at the cost of lower accuracy OR
 // - higher accuracy at the cost of lower speed
 
-#define HIGH_SPEED
+// we go with high speed because we have a lot of sensors to handle
+//#define HIGH_SPEED
 //#define HIGH_ACCURACY
 
 {
@@ -136,8 +137,8 @@ void Node::setupCompass()
   */
 
   // values from a single run of polulu calibrate:
-  compass->m_min = (LSM303::vector<int16_t>){  -291,   -219,   -554};
-  compass->m_max = (LSM303::vector<int16_t>){  -283,   -213,   -546};
+  compass->m_min = (LSM303::vector<int16_t>){  -669,   -260,   -523};
+  compass->m_max = (LSM303::vector<int16_t>){  +359,   +694,   +411};
 }
 
 

@@ -1,10 +1,10 @@
 // test node
 Node nodes[]={
-  Node(0,0,0,1,true),
+  Node(0,0,0,1,true) /*,
   Node(1,500,1,2,true),
   Node(2,400,3,4,false),
   Node(3,300,5,5,true),
-  Node(4,200,7,8,true)
+  Node(4,200,7,8,true)*/
 };
 /*
 // real nodes
@@ -22,11 +22,13 @@ void setupNodes()
   for( Node node : nodes )
     node.setup();
 
-
+  if( enableBellows )
+  {
   baseBellows.nodes[0] = &nodes[1];
   baseBellows.nodes[1] = &nodes[2];
   tipBellows.nodes[0] = &nodes[3];
   tipBellows.nodes[1] = &nodes[4];
+  }
 
 }
 
