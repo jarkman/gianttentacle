@@ -110,7 +110,7 @@ void Node::setupRanger(VL53L0X *ranger)
 {
 
   ranger->init();
-  ranger->setTimeout(500);
+  ranger->setTimeout(100); // if time is too long, we get general sluggishness and watchdog resets
 
 #if defined LONG_RANGE
   // lower the return signal rate limit (default is 0.25 MCPS)
@@ -151,12 +151,15 @@ void Node::setupCompass()
 void Node::loop() {
   if( trace ) Serial.println("...compass");
   loopCompass();
+
+  yield();  // console ESP8266 watchdog
   
   if( leftRanger != NULL )
   {
     if( trace ) Serial.println("...left ranger");
     leftRange = readRanger(leftRanger);
     if( trace ) Serial.println("...left done");
+    yield();  
   }
 
   if( rightRanger != NULL )
@@ -164,6 +167,7 @@ void Node::loop() {
     if( trace ) Serial.println("...right ranger");
     rightRange = readRanger(rightRanger);
     if( trace ) Serial.println("...right done");
+    yield();  
   }
 }
 

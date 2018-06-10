@@ -3,6 +3,8 @@
 // https://github.com/madsci1016/Arduino-PS2X
 // http://www.billporter.info/2010/06/05/playstation-2-controller-arduino-library-v1-0/
 
+#define PS2X_COM_DEBUG 1
+
 #include <PS2X_lib.h>  //for v1.6
 
 // Connector pins on the PS2 controller are:
@@ -18,12 +20,12 @@
 
 // I used a 6-core ribbon to connect to these pins on the socket:
 
-// Data - I needed a 2k2 pullup to +5 to make this work on a Nano
-// Command
+// Data - wemos D6 / nano D13 (I needed a 2k2 pullup to +5 to make this work on a Nano)
+// Command - wemos D4 / nano D11
 // Gnd
 // 3.3v to power controller, I ran it from the Nano 3.3v output
-// Attention
-// Clock   (red)
+// Attention  wemos D5 / nano D10
+// Clock   (red)  wemos D3 / nano D12
 
 /******************************************************************
  * set pins connected to PS2 controller:
@@ -31,10 +33,10 @@
  *   - 2e colmun: Stef?
  * replace pin numbers by the ones you use
  ******************************************************************/
-#define PS2_DAT        D3//13  //14    
+#define PS2_DAT        D6//13  //14    
 #define PS2_CMD        D4//11  //15
 #define PS2_SEL        D5//10  //16
-#define PS2_CLK        D6//12  //17
+#define PS2_CLK        D3//12  //17
 
 /******************************************************************
  * select modes of PS2 controller:
@@ -70,7 +72,7 @@ void setupPS2(){
   
   //setup pins and settings: GamePad(clock, command, attention, data, Pressures?, Rumble?) check for error
   error = ps2x.config_gamepad(PS2_CLK, PS2_CMD, PS2_SEL, PS2_DAT, pressures, rumble);
-  
+ 
   if(error == 0){
     Serial.print("Found Controller, configured successful ");
     Serial.print("pressures = ");

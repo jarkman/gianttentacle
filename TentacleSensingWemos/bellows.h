@@ -4,7 +4,7 @@
 class Bellows
 {
   public:
-  Bellows( Servo _servo );
+  Bellows( int servoNum );
   void drive( float drive ); // set servo to this value
   void target( float targetFraction ); // move joints to this value
   void loop();
@@ -15,7 +15,8 @@ class Bellows
   Node* nodes[2];
   
   private:
-  Servo servo;
+  //Servo servo;
+  int servoNum;
 };
 #endif
 

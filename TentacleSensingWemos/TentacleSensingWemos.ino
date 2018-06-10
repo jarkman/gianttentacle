@@ -16,29 +16,32 @@
 // D1 and D2 for SCL/SDA
 //   wired to OLED and to mux
 // PS2 uses D3..D6
-// Servos are on D7 & D8
+// Servos were on D7 & D8, now driven by the PWMServoDriver
 
 
 // Each node has one compass sensor and either two or zero rangers
 
 // i2c addresses:
-// Mux    : 0x70
-// LSM303 : 0x19 & 0x1E
-// VL53L0X: 0x29 (but can be changed by reset-pin manipulation)
 // Oled   : 0x3C
+// Adafruit_PWMServoDriver: 0x40
 
+// Mux    : 0x70
+// and beyound the mux:
+//  LSM303 : 0x19 & 0x1E
+//  VL53L0X: 0x29 (but can be changed by reset-pin manipulation)
 
 
 #include "Node.h"
 #include <Wire.h>
 #include <Servo.h>
 #include <SFE_MicroOLED.h>  // Include the SFE_MicroOLED library
+#include <Adafruit_PWMServoDriver.h>
 
 
 #include "bellows.h"
 
 boolean trace = false;          // activity tracing for finding crashes
-boolean enableBellows = false;  // turn on/off bellows code
+boolean enableBellows = true;  // turn on/off bellows code
 
 void setupNodes();
 void loopNodes();
@@ -50,12 +53,17 @@ void loopNodes();
 
 MicroOLED oled(PIN_RESET, DC_JUMPER);  // I2C Example
 
+// called this way, it uses the default address 0x40
+Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 
-Servo baseServo; 
-Servo tipServo; 
+//Servo baseServo; 
+//Servo tipServo; 
+// servo numbers on the PWM servo driver
+#define BASE_SERVO 0
+#define TIP_SERVO 1
 
-Bellows baseBellows( baseServo );
-Bellows tipBellows( tipServo );
+Bellows baseBellows( BASE_SERVO );
+Bellows tipBellows( TIP_SERVO );
 
 float wavePeriod = 10000.0; // in millis
 float waveFraction = 0.1; // 0 to 1.0
@@ -86,6 +94,8 @@ void setupI2C()
 
 
 void setup() {
+  setupOled();
+  
   delay(5000);
   Serial.begin(9600);
 
@@ -99,20 +109,37 @@ void setup() {
 
   if( trace ) Serial.println("..ps2");
   setupPS2();
+
+  setupServoDriver();
   
-  baseServo.attach(D7); 
-  tipServo.attach(D8); 
+  //baseServo.attach(D7); 
+  //tipServo.attach(D8); 
 
   waveStartT = millis();
 
-  setupOled();
+  
 }
+
+void setupServoDriver()
+{
+   pwm.begin();
+  
+  pwm.setPWMFreq(60);  // Analog servos run at ~60 Hz updates
+}
+
 
 void setupOled()
 {
   oled.begin();     // Initialize the OLED
   oled.clear(PAGE); // Clear the display's internal memory
   oled.clear(ALL);  // Clear the library's display buffer
+
+   oled.setFontType(0);
+  int y = 0; //oled.getLCDHeight();
+  int fh = oled.getFontHeight();
+
+  oled.setCursor(0,y);
+  oled.print("Morning!");
   oled.display();   // Display what's in the buffer (splashscreen)
 
 
@@ -202,7 +229,7 @@ void loop() {
   tipBellows.loop();
   if( trace ) Serial.println("done");
 
-  logNodes();
+  //logNodes();
   Serial.println("");
    delay(100);
 }
