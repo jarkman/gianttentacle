@@ -13,6 +13,7 @@ Bellows::Bellows( int _servoNum )
   this->servoNum = _servoNum;
   error = -2;
   targetFraction = 0.0;
+  currentFraction = 0.0;
   nodes[0] = NULL;
   nodes[1] = NULL;
 }
@@ -35,7 +36,7 @@ void Bellows::loop()
   if( nodes[0] == NULL || nodes[1]==NULL )
     return;
     
-  float currentFraction = (nodes[0]->relativeAngle + nodes[1]->relativeAngle) /  (2.0 * MAX_BELLOWS_ANGLE);
+  currentFraction = (nodes[0]->relativeAngle + nodes[1]->relativeAngle) /  (2.0 * MAX_BELLOWS_ANGLE);
 
   error = targetFraction - currentFraction;
   // simple linear feedback
@@ -45,12 +46,56 @@ void Bellows::loop()
 
 void Bellows::drive( float drive ) // 0 is off, 1.0 is full-left, -1.0 is full-right
 {
-  this->servoAngle = fmap( drive, 1.0, -1.0, 0.0, 180 );
+  this->servoAngle = fmapConstrained( drive, 1.0, -1.0, 0.0, 180 );
 
   float pulseLen = fmap( servoAngle, 0, 180, SERVOMIN, SERVOMAX ); // map angle to pulse length in PWM count units
+
+  noMux();
   
   pwm.setPWM(servoNum, 0, pulseLen);
   
   //this->servo.write(this->servoAngle);
 }
+
+int printOneBellows( int y, int fh, Bellows*b )
+{
+  oled.print("T:");
+  oled.print((int) (b->targetFraction*100.0));
+  
+  oled.print(" C:");
+  oled.print((int) (b->currentFraction*100.0));
+
+  y += fh; 
+  oled.setCursor(0,y); 
+
+   
+  oled.print("  S ");
+  oled.print((int) b->servoAngle);
+
+  y += fh; 
+  oled.setCursor(0,y); 
+  
+  return y;
+}
+
+void  printBellows(  )
+{
+  int fh = oled.getFontHeight();
+  int y = 0;
+
+  oled.setCursor(0,y);
+
+  oled.print("Bellows:");
+  
+  y += fh; 
+  oled.setCursor(0,y); 
+  
+  if( enableBellows )
+  {
+    y = printOneBellows( y, fh, &baseBellows );
+    y = printOneBellows( y, fh, &tipBellows );
+  } 
+ 
+}
+
 

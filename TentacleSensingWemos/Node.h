@@ -45,7 +45,7 @@ class Node
     void loopCompass();
     void selectLeftMux();
     void selectRightMux();
-    void tcaselect(uint8_t i);
+    
 };
 
 #endif NODE_H

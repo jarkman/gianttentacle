@@ -12,11 +12,18 @@
 
 
 // Wiring:
+/*
+The usual start mode for ESPEasy is "Boot from Flash". Therefore some GPIO have to be set:
+D3/GPIO0 = 1 (high)
+D4/GPIO2 = 1 (high)
+D8/GPIO15 = 0 (low)
+*/
 
 // D1 and D2 for SCL/SDA
 //   wired to OLED and to mux
 // PS2 uses D3..D6
 // Servos were on D7 & D8, now driven by the PWMServoDriver
+// Encoder is on D7 & D8, switch on D0
 
 
 // Each node has one compass sensor and either two or zero rangers
@@ -25,7 +32,7 @@
 // Oled   : 0x3C
 // Adafruit_PWMServoDriver: 0x40
 
-// Mux    : 0x70
+// Mux    : 0x70, 0x71
 // and beyound the mux:
 //  LSM303 : 0x19 & 0x1E
 //  VL53L0X: 0x29 (but can be changed by reset-pin manipulation)
@@ -33,7 +40,7 @@
 
 #include "Node.h"
 #include <Wire.h>
-#include <Servo.h>
+//#include <Servo.h>
 #include <SFE_MicroOLED.h>  // Include the SFE_MicroOLED library
 #include <Adafruit_PWMServoDriver.h>
 
@@ -42,9 +49,11 @@
 
 boolean trace = false;          // activity tracing for finding crashes
 boolean enableBellows = true;  // turn on/off bellows code
+boolean enablePS2 = false;
 
 void setupNodes();
 void loopNodes();
+void setupEncoder();
 
 
 
@@ -64,6 +73,13 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 
 Bellows baseBellows( BASE_SERVO );
 Bellows tipBellows( TIP_SERVO );
+
+
+// UI screens accessible via encoder
+#define UI_STATES 2
+long uiState = 0;
+
+
 
 float wavePeriod = 10000.0; // in millis
 float waveFraction = 0.1; // 0 to 1.0
@@ -94,7 +110,7 @@ void setupI2C()
 
 
 void setup() {
-  setupOled();
+  setupDisplay();
   
   delay(5000);
   Serial.begin(9600);
@@ -107,10 +123,14 @@ void setup() {
   if( trace ) Serial.println("..nodes");
   setupNodes();
 
-  if( trace ) Serial.println("..ps2");
-  setupPS2();
-
+  if( enablePS2 )
+  {
+    if( trace ) Serial.println("..ps2");
+    setupPS2();
+  }
   setupServoDriver();
+
+  setupEncoder();
   
   //baseServo.attach(D7); 
   //tipServo.attach(D8); 
@@ -122,28 +142,14 @@ void setup() {
 
 void setupServoDriver()
 {
-   pwm.begin();
+  noMux();
+  
+  pwm.begin();
   
   pwm.setPWMFreq(60);  // Analog servos run at ~60 Hz updates
 }
 
 
-void setupOled()
-{
-  oled.begin();     // Initialize the OLED
-  oled.clear(PAGE); // Clear the display's internal memory
-  oled.clear(ALL);  // Clear the library's display buffer
-
-   oled.setFontType(0);
-  int y = 0; //oled.getLCDHeight();
-  int fh = oled.getFontHeight();
-
-  oled.setCursor(0,y);
-  oled.print("Morning!");
-  oled.display();   // Display what's in the buffer (splashscreen)
-
-
-}
 
 
 float wave(float phaseOffset) // -1.0 to 1.0
@@ -208,7 +214,9 @@ void loopWave()
 }
 void loop() {
 
-  loopOled();
+  loopEncoder();
+  loopDisplay();
+ 
 
   //delay(100);
 
@@ -219,9 +227,12 @@ void loop() {
   if( ! loopSelftest())
    loopWave();
 
-  if( trace ) Serial.println("ps2");
-  //loopPS2();
-  //PS2_loop_verbose();
+  if(enablePS2)
+  {
+    if( trace ) Serial.println("ps2");
+    //loopPS2();
+    //PS2_loop_verbose();
+  }
   loopNodes();
   if( trace ) Serial.println("basebellows");
   baseBellows.loop();
@@ -235,28 +246,72 @@ void loop() {
 }
 
 
-void loopOled()
+
+float fmapConstrained(float x, float in_min, float in_max, float out_min, float out_max)
 {
-  
-  oled.clear(PAGE); // Clear the display's internal memory
-  
-  oled.setFontType(0);
-  int y = 0; //oled.getLCDHeight();
-  int fh = oled.getFontHeight();
+  float f = fmap( x,  in_min, in_max, out_min, out_max);
 
-  oled.setCursor(0,y);
-  printNodes( );
-  
+  if( f < out_min )
+    f = out_min;
 
-  oled.display();   // Display what's in the buffer (splashscreen)
+  if( f > out_max )
+    f = out_max;
 
-
+  return f;
 }
-
 
 float fmap(float x, float in_min, float in_max, float out_min, float out_max)
 {
   return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
+
+
+// https://learn.adafruit.com/adafruit-tca9548a-1-to-8-i2c-multiplexer-breakout/wiring-and-test
+#define TCAADDR0 0x70
+#define TCAADDR1 0x71
+#define NO_MUX 16
+
+// 16: no mux
+// 0-7: mux0
+// 8-15: mux1
+ 
+void muxSelect(uint8_t i) {
+  uint8_t m0;
+  uint8_t m1;
+  
+  if( i > 15 )
+  {
+    // disable both
+    m0 = 0;
+    m1 = 0;  
+  }
+  else if( i < 8 )
+  {
+    // use mux 0, disable mux 1
+    m0 = 1 << i;
+    m1 = 0;
+  }
+  else if( i <= 15 )
+  {
+    // disable mux 0, use mux 1
+    m0 = 0;
+    m1 = 1 << i;
+  }
+
+ 
+  Wire.beginTransmission(TCAADDR0);
+  Wire.write(m0);
+  Wire.endTransmission(); 
+  
+  Wire.beginTransmission(TCAADDR1);
+  Wire.write(m1);
+  Wire.endTransmission();  
+}
+
+// disable mux 
+void noMux()
+{
+  muxSelect( NO_MUX );
+}
 

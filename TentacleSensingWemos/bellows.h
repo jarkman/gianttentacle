@@ -10,6 +10,7 @@ class Bellows
   void loop();
 
   float targetFraction;
+  float currentFraction;
   float servoAngle;
   float error;
   Node* nodes[2];

@@ -53,25 +53,14 @@ void Node::log()
 
 void Node::selectLeftMux()
 {
-  tcaselect( leftMuxAddress );
+  muxSelect( leftMuxAddress );
 }
 
 void Node::selectRightMux()
 {
-  tcaselect( rightMuxAddress );
+  muxSelect( rightMuxAddress );
 }
 
-
-// https://learn.adafruit.com/adafruit-tca9548a-1-to-8-i2c-multiplexer-breakout/wiring-and-test
-#define TCAADDR 0x70
- 
-void Node::tcaselect(uint8_t i) {
-  if (i > 7) return;
- 
-  Wire.beginTransmission(TCAADDR);
-  Wire.write(1 << i);
-  Wire.endTransmission();  
-}
 
 void Node::setupRangers()
 {
@@ -79,12 +68,14 @@ void Node::setupRangers()
   {
     selectLeftMux();
     setupRanger(leftRanger);
+    noMux();
   }
 
  if( rightRanger != NULL )
   {
     selectRightMux();
     setupRanger(rightRanger);
+    noMux();
   }
 }
 
@@ -145,6 +136,7 @@ void Node::setupCompass()
   // values from a single run of polulu calibrate:
   compass->m_min = (LSM303::vector<int16_t>){  -669,   -260,   -523};
   compass->m_max = (LSM303::vector<int16_t>){  +359,   +694,   +411};
+  noMux();
 }
 
 
@@ -157,7 +149,9 @@ void Node::loop() {
   if( leftRanger != NULL )
   {
     if( trace ) Serial.println("...left ranger");
+    selectLeftMux();
     leftRange = readRanger(leftRanger);
+    noMux();
     if( trace ) Serial.println("...left done");
     yield();  
   }
@@ -165,7 +159,9 @@ void Node::loop() {
   if( rightRanger != NULL )
   {
     if( trace ) Serial.println("...right ranger");
+    selectRightMux();
     rightRange = readRanger(rightRanger);
+    noMux();
     if( trace ) Serial.println("...right done");
     yield();  
   }
@@ -227,6 +223,8 @@ void Node::loopCompass() {
 
   if( trace ) Serial.print("heading: "); 
   if( trace ) Serial.println(heading);
+
+  noMux();
 
 }
 

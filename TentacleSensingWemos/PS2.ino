@@ -5,7 +5,7 @@
 
 #define PS2X_COM_DEBUG 1
 
-#include <PS2X_lib.h>  //for v1.6
+#include <PS2X_lib.h>  //for v1.6 
 
 // Connector pins on the PS2 controller are:
 // Data
