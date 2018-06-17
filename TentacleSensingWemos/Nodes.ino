@@ -1,4 +1,4 @@
-/*
+/**
 // test node
 Node nodes[]={
   Node(0,0,0,1,true) 
@@ -6,7 +6,7 @@ Node nodes[]={
 
 int numNodes = 1;
 
-*/
+/ */
 
 // real nodes
 Node nodes[]={

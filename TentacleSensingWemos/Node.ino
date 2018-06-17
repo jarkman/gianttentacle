@@ -101,7 +101,7 @@ void Node::setupRanger(VL53L0X *ranger)
 {
 
   ranger->init();
-  ranger->setTimeout(100); // if time is too long, we get general sluggishness and watchdog resets
+  ranger->setTimeout(500); // if time is too long in single-measurement, we get general sluggishness and watchdog resets. Longer should be fine in continuous.
 
 #if defined LONG_RANGE
   // lower the return signal rate limit (default is 0.25 MCPS)
@@ -118,6 +118,13 @@ void Node::setupRanger(VL53L0X *ranger)
   // increase timing budget to 200 ms
   ranger->setMeasurementTimingBudget(200000);
 #endif
+
+ // Start continuous back-to-back mode (take readings as
+  // fast as possible).  To use continuous timed mode
+  // instead, provide a desired inter-measurement period in
+  // ms (e.g. sensor.startContinuous(100)).
+  ranger->startContinuous();
+  
 }
 
 void Node::setupCompass()
@@ -178,7 +185,8 @@ void Node::loop() {
 float Node::readRanger(VL53L0X* ranger)
 {
   if( trace ) Serial.println("...reading ranger");
-  float range = ranger->readRangeSingleMillimeters();
+  float range = ranger->readRangeContinuousMillimeters();
+  //float range = ranger->readRangeSingleMillimeters();
   if (ranger->timeoutOccurred()) 
   { 
     range = -1;
