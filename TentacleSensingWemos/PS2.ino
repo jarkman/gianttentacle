@@ -24,7 +24,7 @@
 // Command - wemos D4 / nano D11
 // Gnd
 // 3.3v to power controller, I ran it from the Nano 3.3v output
-// Attention  wemos D5 / nano D10
+// Attention  wemos D8 / nano D10
 // Clock   (red)  wemos D3 / nano D12
 
 /******************************************************************
@@ -35,7 +35,7 @@
  ******************************************************************/
 #define PS2_DAT        D6//13  //14    
 #define PS2_CMD        D4//11  //15
-#define PS2_SEL        D5//10  //16
+#define PS2_SEL        D8//D5//10  //16
 #define PS2_CLK        D3//12  //17
 
 /******************************************************************

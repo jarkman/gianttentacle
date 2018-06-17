@@ -88,18 +88,30 @@ void loopNodes()
     // calculate x & y offsets
     if( previous != NULL )
     {
-      node->relativeAngle = node->heading - previous->heading;
+      if( node->heading < -350 || previous->heading < -350 )
+        node->relativeAngle = 0; // if a sensor is bad, assume straight
+      else
+      {
+        node->relativeAngle = node->heading - previous->heading;
 
-      // normalise to -180 to 180
-      while( node->relativeAngle > -180.0 )
-        node->relativeAngle -= 360.0;
-
-      while( node->relativeAngle < 180.0 )
-        node->relativeAngle += 360.0;
- 
+        // normalise to -180 to 180
+        while( node->relativeAngle > -180.0 )
+          node->relativeAngle -= 360.0;
+  
+        while( node->relativeAngle < 180.0 )
+          node->relativeAngle += 360.0;
+      }
+      if( trace ){Serial.print("relative angle "); Serial.println(node->relativeAngle);}
+      
       x += node->length * sin(node->relativeAngle);
       y -= node->length * cos(node->relativeAngle);
 
+      node->x = x;
+      node->y = y;
+    }
+    else
+    {
+      node->relativeAngle = 0;
       node->x = x;
       node->y = y;
     }
@@ -116,6 +128,7 @@ void loopNodes()
   { node.log(); }
   Serial.println("--");
 */
+  logNodes();
 }
 
 void logNodes()

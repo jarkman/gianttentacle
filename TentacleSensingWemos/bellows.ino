@@ -39,6 +39,12 @@ void Bellows::loop()
   currentFraction = (nodes[0]->relativeAngle + nodes[1]->relativeAngle) /  (2.0 * MAX_BELLOWS_ANGLE);
 
   error = targetFraction - currentFraction;
+  if( trace ){Serial.print("nodes[0]->relativeAngle "); Serial.println(nodes[0]->relativeAngle);}
+  if( trace ){Serial.print("nodes[1]->relativeAngle "); Serial.println(nodes[1]->relativeAngle);}
+  if( trace ){Serial.print("targetFraction "); Serial.println(targetFraction);}
+  if( trace ){Serial.print("currentFraction "); Serial.println(currentFraction);}
+  if( trace ){Serial.print("error fraction "); Serial.println(error);}
+      
   // simple linear feedback
   drive( error * DRIVE_GAIN);
   
@@ -48,6 +54,8 @@ void Bellows::drive( float drive ) // 0 is off, 1.0 is full-left, -1.0 is full-r
 {
   this->servoAngle = fmapConstrained( drive, 1.0, -1.0, 0.0, 180 );
 
+  if( trace ){Serial.print("servo angle "); Serial.println(this->servoAngle);}
+  
   float pulseLen = fmap( servoAngle, 0, 180, SERVOMIN, SERVOMAX ); // map angle to pulse length in PWM count units
 
   noMux();
@@ -59,10 +67,10 @@ void Bellows::drive( float drive ) // 0 is off, 1.0 is full-left, -1.0 is full-r
 
 int printOneBellows( int y, int fh, Bellows*b )
 {
-  oled.print("T:");
+  oled.print("");
   oled.print((int) (b->targetFraction*100.0));
   
-  oled.print(" C:");
+  oled.print("-");
   oled.print((int) (b->currentFraction*100.0));
 
   y += fh; 
@@ -97,5 +105,7 @@ void  printBellows(  )
   } 
  
 }
+
+
 
 

@@ -12,18 +12,19 @@
 
 
 // Wiring:
-/*
-The usual start mode for ESPEasy is "Boot from Flash". Therefore some GPIO have to be set:
-D3/GPIO0 = 1 (high)
-D4/GPIO2 = 1 (high)
-D8/GPIO15 = 0 (low)
-*/
+
+// "Boot from Flash" requires some pin state to be right:
+
+// D3/GPIO0 = 1 (high)
+// D4/GPIO2 = 1 (high)
+// D8/GPIO15 = 0 (low)
+
+// so we'd better use these as outputs
 
 // D1 and D2 for SCL/SDA
 //   wired to OLED and to mux
-// PS2 uses D3..D6
-// Servos were on D7 & D8, now driven by the PWMServoDriver
-// Encoder is on D7 & D8, switch on D0
+// PS2 uses D3 D4 D6 D8
+// Encoder is on D5 & D7, switch on D0
 
 
 // Each node has one compass sensor and either two or zero rangers
@@ -47,7 +48,7 @@ D8/GPIO15 = 0 (low)
 
 #include "bellows.h"
 
-boolean trace = false;          // activity tracing for finding crashes
+boolean trace = true;          // activity tracing for finding crashes
 boolean enableBellows = true;  // turn on/off bellows code
 boolean enablePS2 = false;
 
@@ -113,7 +114,7 @@ void setup() {
   setupDisplay();
   
   delay(5000);
-  Serial.begin(9600);
+  Serial.begin(115200);
 
 
   if( trace ) Serial.println("---Setup---");
@@ -214,6 +215,8 @@ void loopWave()
 }
 void loop() {
 
+  long start = millis();
+  
   loopEncoder();
   loopDisplay();
  
@@ -240,6 +243,9 @@ void loop() {
   tipBellows.loop();
   if( trace ) Serial.println("done");
 
+  long end = millis();
+  Serial.print("loop took ") ; Serial.println( end-start );
+  
   //logNodes();
   Serial.println("");
    delay(100);

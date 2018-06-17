@@ -141,28 +141,36 @@ void Node::setupCompass()
 
 
 void Node::loop() {
+  if( trace ){Serial.println("---------------------");Serial.print("Node "); Serial.println(index);}
+      
   if( trace ) Serial.println("...compass");
+  long start = millis();
   loopCompass();
-
+  if( trace ) Serial.println(millis() - start );   
+  
   yield();  // console ESP8266 watchdog
   
   if( leftRanger != NULL )
   {
+    start = millis();
     if( trace ) Serial.println("...left ranger");
     selectLeftMux();
     leftRange = readRanger(leftRanger);
     noMux();
-    if( trace ) Serial.println("...left done");
+    if( trace ) {Serial.print("...left : "); Serial.println(leftRange);}
+    if( trace ) Serial.println(millis() - start ); 
     yield();  
   }
 
   if( rightRanger != NULL )
   {
+    start = millis();
     if( trace ) Serial.println("...right ranger");
     selectRightMux();
     rightRange = readRanger(rightRanger);
     noMux();
-    if( trace ) Serial.println("...right done");
+    if( trace ) {Serial.print("...right : "); Serial.println(rightRange);}
+    if( trace ) Serial.println(millis() - start ); 
     yield();  
   }
 }

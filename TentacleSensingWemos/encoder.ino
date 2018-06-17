@@ -6,7 +6,8 @@ volatile long pulses = 0;
 long lastencoderValue = 0;
 
 #define ENCODER_A D7
-#define ENCODER_B D8
+#define ENCODER_B D5
+#define ENCODER_SWITCH D0
 
 #define STEPS_PER_ACTION 4 // encoder steps per knob click
 
