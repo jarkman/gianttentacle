@@ -16,6 +16,7 @@ Bellows::Bellows( int _servoNum )
   currentFraction = 0.0;
   nodes[0] = NULL;
   nodes[1] = NULL;
+  manual = false;
 }
 
 void Bellows::target( float _targetFraction ) // 0 is off, 1.0 is full-left, -1.0 is full-right
@@ -54,6 +55,12 @@ void Bellows::drive( float drive ) // 0 is off, 1.0 is full-left, -1.0 is full-r
 {
   this->servoAngle = fmapConstrained( drive, 1.0, -1.0, 0.0, 180 );
 
+  if( ! manual )
+    driveServoAngle();
+}
+
+void Bellows::driveServoAngle()
+{
   if( trace ){Serial.print("servo angle "); Serial.println(this->servoAngle);}
   
   float pulseLen = fmap( servoAngle, 0, 180, SERVOMIN, SERVOMAX ); // map angle to pulse length in PWM count units
@@ -106,6 +113,22 @@ void  printBellows(  )
  
 }
 
+
+int Bellows::incrementVal(int index, int delta)
+{
+  if( manual )
+  {
+    servoAngle += delta;
+    servoAngle = fconstrain( servoAngle, 0, 180 );
+   
+    driveServoAngle();
+  } 
+}
+
+int Bellows::setManual(int index,boolean _manual)
+{
+  manual = _manual;
+}
 
 
 

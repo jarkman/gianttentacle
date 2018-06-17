@@ -272,6 +272,16 @@ float fmap(float x, float in_min, float in_max, float out_min, float out_max)
 }
 
 
+float fconstrain(float f, float out_min, float out_max)
+{
+  if( f < out_min )
+    f = out_min;
+
+  if( f > out_max )
+    f = out_max;
+
+  return f;
+}
 
 // https://learn.adafruit.com/adafruit-tca9548a-1-to-8-i2c-multiplexer-breakout/wiring-and-test
 #define TCAADDR0 0x70
