@@ -24,18 +24,25 @@ class Node
   public:
     float heading;
     float relativeAngle;
+    float targetAngle; // just for display purposes
     float length;
     float leftRange;
     float rightRange; 
     // current position of the node end, where x is out-from-the-wall and y is left-right
     float x; 
     float y;
+    float targetX;
+    float targetY;
+    
+    LSM303::vector<int16_t> running_min = {32767, 32767, 32767}, running_max = {-32768, -32768, -32768};
+
 
     Node( int _index, float _length, int _leftMux, int _rightMux, boolean _hasRange );
 
     void setup();
     void loop();
     void log();
+    void calibrateCompass();
 
   private:
     void setupRangers();

@@ -33,6 +33,8 @@ void loopDisplay()
     case 1:
       printBellows();
       break;
+    case 2:
+      drawPose();
     default:
       break;
   }

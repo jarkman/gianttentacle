@@ -21,8 +21,11 @@
 
 // so we'd better use these as outputs
 
-// D1 and D2 for SCL/SDA
-//   wired to OLED and to mux
+// Pins are
+//  I2C
+//    D1 SCL
+//    D2 SDA
+//      wired to OLED and to mux and to servo board
 // PS2 uses D3 D4 D6 D8
 // Encoder is on D5 & D7, switch on D0
 
@@ -51,6 +54,8 @@
 boolean trace = true;          // activity tracing for finding crashes
 boolean enableBellows = true;  // turn on/off bellows code
 boolean enablePS2 = false;
+boolean calibrateCompasses = false; // turn on then rotate each compass smoothly about all axes to get the individual compass min/max values for compass setup
+
 
 void setupNodes();
 void loopNodes();
@@ -77,13 +82,14 @@ Bellows tipBellows( TIP_SERVO );
 
 
 // UI screens accessible via encoder
-#define UI_STATES 2
-long uiState = 0;
+#define UI_STATES 3
+long uiState = 2;
 
+char report[80];
 
 
 float wavePeriod = 10000.0; // in millis
-float waveFraction = 0.1; // 0 to 1.0
+float waveFraction = 0.5; // 0 to 1.0
 
 float waveAmplitude = 1.0; // 0 to 1.0
 long waveStartT = 0;
@@ -97,8 +103,8 @@ float stickRightX = 0;
 long lastStickMoveMillis = 0; // time when stick was last moved
 
 // pose targets for a boot-time wriggle selftest
-#define NUM_SELFTEST 5
-float selftest[NUM_SELFTEST][3] = {{0.0, 0.0}, {-1.0,-1.0}, {1.0,1.0}, {-1.0, 1.0},{0.0, 0.0}};
+#define NUM_SELFTEST 6
+float selftest[NUM_SELFTEST][2] = {{0.0, 0.0}, {-1.0,-1.0}, {-1.0, 1.0}, {1.0,-1.0}, {1.0, 1.0},{0.0, 0.0}};
 int nextSelftest = -1;
 long selftestStartMillis = -1;
 
@@ -174,6 +180,8 @@ boolean loopSelftest()
     (selftestStartMillis > 0 && millis() - selftestStartMillis > 10000) ) // time has been too long, must be broken
   {
     //move on to next pose
+    Serial.print("Starting selftest pose ");
+    Serial.println(nextSelftest);
     nextSelftest ++;
     selftestStartMillis = millis();
     
@@ -202,7 +210,7 @@ void loopWave()
 
   //Serial.println(effectiveWaveFraction);
   
-  float tipPhaseDelay = fmap( effectiveWaveFraction, 0.0, 1.0, - PI / 2.0, 0.0 ); // 90 degrees delay at small amplitude, for a wiggle, no delay at large amplitude, for a whole-tentacle curl
+  float tipPhaseDelay = - fmap( effectiveWaveFraction, 0.0, 1.0, - PI / 2.0, 0.3 ); // 90 degrees delay at small amplitude, for a wiggle, no delay at large amplitude, for a whole-tentacle curl
 
   //wavePeriod = fmap( waveFraction, 0.0, 1.0, 10000.0, 20000.0 );
 
@@ -312,7 +320,7 @@ void muxSelect(uint8_t i) {
   {
     // disable mux 0, use mux 1
     m0 = 0;
-    m1 = 1 << i;
+    m1 = 1 << (i-8);
   }
 
  

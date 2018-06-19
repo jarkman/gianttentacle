@@ -10,6 +10,8 @@ Node::Node( int _index, float _length, int _leftMux, int _rightMux, boolean _has
   hasRange = _hasRange;
   heading = -360;
   relativeAngle = 0;
+  targetAngle = 0;
+  
   leftRange = -1;
   rightRange = -1;
   compass = new LSM303();
@@ -138,16 +140,78 @@ void Node::setupCompass()
   Calibration values; the default values of +/-32767 for each axis
   lead to an assumed magnetometer bias of 0. Use the Calibrate example
   program to determine appropriate values for your particular unit.
+
+  Or turn on calibrateCompasses!
+  
   */
 
   // values from a single run of polulu calibrate:
   compass->m_min = (LSM303::vector<int16_t>){  -669,   -260,   -523};
   compass->m_max = (LSM303::vector<int16_t>){  +359,   +694,   +411};
+
+  switch( index )
+  {
+  case 0: 
+    compass->m_min = (LSM303::vector<int16_t>) {  -508,   -607,   -786};
+    compass->m_max = (LSM303::vector<int16_t>) {  +543,   +479,   +172};
+    break;
+  
+  case 1:
+    compass->m_min = (LSM303::vector<int16_t>) {  -429,   -680,   -460};
+    compass->m_max = (LSM303::vector<int16_t>) {  +652,   +500,   +644};
+    break;
+    
+  case 2:
+    compass->m_min = (LSM303::vector<int16_t>)  {  -589,   -715,   -637};
+    compass->m_max = (LSM303::vector<int16_t>) {  +539,   +413,   +318};
+    break;
+    
+  case 3:
+    compass->m_min = (LSM303::vector<int16_t>)  {  -551,   -675,   -644};
+    compass->m_max = (LSM303::vector<int16_t>) {  +451,   +476,   +315};
+    break;
+  
+  case 4:
+    compass->m_min = (LSM303::vector<int16_t>) {  -521,   -760,   -531};
+    compass->m_max = (LSM303::vector<int16_t>)  {  +589,   +358,   +519};
+    break;
+  }
+  
   noMux();
+}
+
+void Node::calibrateCompass() {  
+  
+  
+    selectLeftMux();
+
+  compass->read();
+  
+  running_min.x = min(running_min.x, compass->m.x);
+  running_min.y = min(running_min.y, compass->m.y);
+  running_min.z = min(running_min.z, compass->m.z);
+
+  running_max.x = max(running_max.x, compass->m.x);
+  running_max.y = max(running_max.y, compass->m.y);
+  running_max.z = max(running_max.z, compass->m.z);
+
+  
+  snprintf(report, sizeof(report), "%d min: {%+6d, %+6d, %+6d}    max: {%+6d, %+6d, %+6d}",
+    index, 
+    running_min.x, running_min.y, running_min.z,
+    running_max.x, running_max.y, running_max.z);
+  Serial.println(report);
+
 }
 
 
 void Node::loop() {
+  if( calibrateCompasses )
+  {
+    calibrateCompass();
+    return;
+  }
+  
   if( trace ){Serial.println("---------------------");Serial.print("Node "); Serial.println(index);}
       
   if( trace ) Serial.println("...compass");
