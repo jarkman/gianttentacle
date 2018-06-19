@@ -51,7 +51,7 @@
 
 #include "bellows.h"
 
-boolean trace = true;          // activity tracing for finding crashes
+boolean trace = false;          // activity tracing for finding crashes - leave off to get better response times
 boolean enableBellows = true;  // turn on/off bellows code
 boolean enablePS2 = false;
 boolean calibrateCompasses = false; // turn on then rotate each compass smoothly about all axes to get the individual compass min/max values for compass setup
@@ -79,6 +79,8 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 
 Bellows baseBellows( BASE_SERVO );
 Bellows tipBellows( TIP_SERVO );
+
+Bellows bellows[] = {baseBellows, tipBellows};
 
 
 // UI screens accessible via encoder
@@ -236,6 +238,7 @@ void loop() {
   if( trace ) Serial.println("---Loop---");
   if( trace ) Serial.println("selftest/wave"); 
   if( ! loopSelftest())
+  if( ! loopBehaviour())
    loopWave();
 
   if(enablePS2)
