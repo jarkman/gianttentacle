@@ -104,7 +104,8 @@ void loopNodes()
   }
 
   if( ! calibrateCompasses )
-    logNodes();
+    if( traceNodes )
+      logNodes();
 }
 
 void logNodes()

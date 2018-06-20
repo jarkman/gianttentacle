@@ -52,6 +52,9 @@
 #include "bellows.h"
 
 boolean trace = false;          // activity tracing for finding crashes - leave off to get better response times
+boolean traceBehaviour = true;
+boolean traceNodes = false;
+
 boolean enableBellows = true;  // turn on/off bellows code
 boolean enablePS2 = false;
 boolean calibrateCompasses = false; // turn on then rotate each compass smoothly about all axes to get the individual compass min/max values for compass setup

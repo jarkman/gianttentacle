@@ -8,9 +8,11 @@ class Bellows
   void driveServoAngle();
   void drive( float drive ); // set servo to this value
   void target( float targetFraction ); // move joints to this value
+  void incrementTarget( float delta );
+  void incrementTargetFromPosition( float delta );
   void loop();
 
-  int incrementVal(int index, int delta);
+  int incrementManualVal(int index, int delta);
   int setManual(int index,boolean _manual);
 
 

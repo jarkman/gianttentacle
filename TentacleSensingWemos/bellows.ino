@@ -25,6 +25,20 @@ void Bellows::target( float _targetFraction ) // 0 is off, 1.0 is full-left, -1.
   
 }
 
+void Bellows::incrementTarget( float delta ) 
+{
+  targetFraction += delta;
+  targetFraction = fconstrain( targetFraction, -1.0, 1.0 );
+  
+}
+
+void Bellows::incrementTargetFromPosition( float delta ) 
+{
+  targetFraction = currentFraction + delta;
+  targetFraction = fconstrain( targetFraction, -1.0, 1.0 );
+  
+}
+
 void Bellows::loop()
 {
   /*
@@ -121,7 +135,7 @@ void  printBellows(  )
 }
 
 
-int Bellows::incrementVal(int index, int delta)
+int Bellows::incrementManualVal(int index, int delta)
 {
   if( manual )
   {
