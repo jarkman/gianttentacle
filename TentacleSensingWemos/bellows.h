@@ -20,7 +20,8 @@ class Bellows
   float targetFraction;
   float currentFraction;
   float servoAngle;
-  float error;
+  float error; // -1 to 1
+  float frustration; // integral of recent error, zeroed when we are on-target
   Node* nodes[2];
   
   private:

@@ -14,6 +14,7 @@ Bellows::Bellows( int _servoNum )
   error = -2;
   targetFraction = 0.0;
   currentFraction = 0.0;
+  frustration = 0;
   nodes[0] = NULL;
   nodes[1] = NULL;
   manual = false;
@@ -63,6 +64,11 @@ void Bellows::loop()
   if( trace ){Serial.print("targetFraction "); Serial.println(targetFraction);}
   if( trace ){Serial.print("currentFraction "); Serial.println(currentFraction);}
   if( trace ){Serial.print("error fraction "); Serial.println(error);}
+
+  if( error < FRUSTRATION_LIMIT )
+    frustration = 0;
+  else
+    frustration += error * loopSeconds;
       
   // simple linear feedback
   drive( error * DRIVE_GAIN);

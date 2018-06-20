@@ -48,6 +48,8 @@
 #include <SFE_MicroOLED.h>  // Include the SFE_MicroOLED library
 #include <Adafruit_PWMServoDriver.h>
 
+#define FRUSTRATION_LIMIT 0.1 // error value above which frustration accumulates
+
 
 #include "bellows.h"
 
@@ -106,6 +108,8 @@ float stickRightY = 0;
 float stickRightX = 0;
 
 long lastStickMoveMillis = 0; // time when stick was last moved
+
+float loopSeconds = 0.1; // duration of our loop() in seconds, used for normalising assorted constants
 
 // pose targets for a boot-time wriggle selftest
 #define NUM_SELFTEST 6
@@ -259,6 +263,8 @@ void loop() {
 
   long end = millis();
   Serial.print("loop took ") ; Serial.println( end-start );
+
+  loopSeconds = 0.001 * (float)( end-start );
   
   //logNodes();
   Serial.println("");
