@@ -1,7 +1,7 @@
 #include "bellows.h"
 
 #define MAX_BELLOWS_ANGLE 75.0 // in degrees
-#define DRIVE_GAIN 2.0
+#define DRIVE_GAIN -0.5
 
 // values tuned for the tentacle valve servos - 130/550
 #define SERVOMIN  130 //150 // this is the 'minimum' pulse length count (out of 4096)

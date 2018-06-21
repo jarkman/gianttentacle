@@ -22,7 +22,8 @@ class Node
     
 
   public:
-    float heading;
+    float heading; // absolute heading
+    float normalisedHeading; // relative to base
     float relativeAngle;
     float targetAngle; // just for display purposes
     float length;

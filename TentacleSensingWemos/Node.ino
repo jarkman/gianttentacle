@@ -11,6 +11,7 @@ Node::Node( int _index, float _length, int _leftMux, int _rightMux, boolean _has
   heading = -360;
   relativeAngle = 0;
   targetAngle = 0;
+  normalisedHeading = 0;
   
   leftRange = -1;
   rightRange = -1;
@@ -36,6 +37,8 @@ void Node::log()
 {
   Serial.print("h ");
   Serial.print(heading);
+  Serial.print("nh ");
+  Serial.print(normalisedHeading);
   Serial.print("deg, ");
   if(leftRanger)
   {
