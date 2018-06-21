@@ -234,5 +234,22 @@ void drawPose()
     }
     last = node;
   }
+
+  // show behaviour and direction
+  int fh = oled.getFontHeight();
+  int fw = oled.getFontWidth();
+  int y = h - fh; // bottom line
+  int x;
+
+  char *s = behaviourLabel();
+  int side = behaviourSide();
+  
+  if( side == -1 )
+    x = 0;
+  else
+    x = w - strlen(s) * fw;
+    
+  oled.setCursor(x,y);
+  oled.print(s);
 }
 

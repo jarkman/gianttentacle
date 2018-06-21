@@ -43,8 +43,10 @@ void setupEncoder()
 
 void loopEncoder()
 {
+  if( trace ){Serial.print("ui state ");
   Serial.print(uiState);
-  Serial.print("  ");
+  Serial.print(" encoder count ");
   Serial.println(encoderValue);
+  }
 }
 

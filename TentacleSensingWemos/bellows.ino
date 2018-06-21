@@ -64,6 +64,7 @@ void Bellows::loop()
   if( trace ){Serial.print("targetFraction "); Serial.println(targetFraction);}
   if( trace ){Serial.print("currentFraction "); Serial.println(currentFraction);}
   if( trace ){Serial.print("error fraction "); Serial.println(error);}
+  if( trace ){Serial.print("frustration "); Serial.println(frustration);}
 
   if( error < FRUSTRATION_LIMIT )
     frustration = 0;
@@ -101,18 +102,20 @@ void Bellows::driveServoAngle()
 
 int printOneBellows( int y, int fh, Bellows*b )
 {
-  oled.print("");
-  oled.print((int) (b->targetFraction*100.0));
-  
-  oled.print("-");
-  oled.print((int) (b->currentFraction*100.0));
+  oled.print(twodigits(b->currentFraction*100.0));
 
+  oled.print(">");
+  oled.print(twodigits(b->targetFraction*100.0));
+  
   y += fh; 
   oled.setCursor(0,y); 
 
    
-  oled.print("  S ");
-  oled.print((int) b->servoAngle);
+  oled.print("  S");
+  oled.print(threedigits( b->servoAngle));
+  
+  oled.print(" f");
+  oled.print(twodigits( b->frustration * 100.0));
 
   y += fh; 
   oled.setCursor(0,y); 

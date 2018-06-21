@@ -112,6 +112,7 @@ long lastStickMoveMillis = 0; // time when stick was last moved
 float loopSeconds = 0.1; // duration of our loop() in seconds, used for normalising assorted constants
 
 // pose targets for a boot-time wriggle selftest
+#define SELFTEST_MILLIS 1000 //10000
 #define NUM_SELFTEST 6
 float selftest[NUM_SELFTEST][2] = {{0.0, 0.0}, {-1.0,-1.0}, {-1.0, 1.0}, {1.0,-1.0}, {1.0, 1.0},{0.0, 0.0}};
 int nextSelftest = -1;
@@ -186,7 +187,7 @@ boolean loopSelftest()
   
   if( nextSelftest < 0 ||  // first time round the loop
     error < 0.1 ||          // arrived at target pose
-    (selftestStartMillis > 0 && millis() - selftestStartMillis > 10000) ) // time has been too long, must be broken
+    (selftestStartMillis > 0 && millis() - selftestStartMillis > SELFTEST_MILLIS) ) // time has been too long, must be broken
   {
     //move on to next pose
     Serial.print("Starting selftest pose ");
@@ -262,12 +263,12 @@ void loop() {
   if( trace ) Serial.println("done");
 
   long end = millis();
-  Serial.print("loop took ") ; Serial.println( end-start );
+  if( trace ){ Serial.print("loop took ") ; Serial.println( end-start );}
 
   loopSeconds = 0.001 * (float)( end-start );
   
   //logNodes();
-  Serial.println("");
+  //Serial.println("");
    delay(100);
 }
 

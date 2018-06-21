@@ -31,6 +31,24 @@ long actionStartTime = 0;
 
 int targetNode = -1;
 int targetSide = 0; // 1 for right, -1 for left
+int targetRange = 0;
+
+int behaviourSide()
+{
+  return targetSide;
+}
+
+char *behaviourLabel()
+{
+  if( action == ACTION_NONE )
+    report[0]='\0';
+  else if( action == ACTION_FRUSTRATED )
+    snprintf(report, sizeof(report), "%c", actionInitial());
+  else
+     snprintf(report, sizeof(report), "%c%d", actionInitial(), targetNode );
+   
+  return report;  
+}
 
 boolean loopBehaviour()
  {
@@ -87,7 +105,27 @@ void loopAction()
   }
 }
 
-
+char actionInitial()
+{
+  switch( action )
+  {
+    case ACTION_FRUSTRATED:
+      return 'f';
+      break;
+      
+    case ACTION_EVADE:
+      return 'e';
+      break;
+      
+    case ACTION_CATCH:
+      return 'c';
+      break;
+      
+   default:
+    return '-';
+    break;
+  }
+}
 void startFrustrated()
 {
   if( traceBehaviour ) Serial.println("starting ACTION_FRUSTRATED");
@@ -202,13 +240,14 @@ void bend( float node, float delta )
     
 }
 
+ 
 boolean findTarget()
 {
-  float minRange = 10000;
   
   int newTargetNode = -1;
   int newTargetSide = 0;
-  
+  float minRange = 10000;
+ 
   for( int i = 0; i < numNodes; i ++ )
   {
     Node* node = &(nodes[i]);
@@ -230,6 +269,7 @@ boolean findTarget()
   {
     targetNode = newTargetNode;
     targetSide = newTargetSide;
+    targetRange = minRange;
     lastTargetTime = millis();
   
     if( traceBehaviour )
@@ -238,6 +278,9 @@ boolean findTarget()
       Serial.print(targetNode);
       Serial.print(" side ");
       Serial.print(targetSide);
+      Serial.print(" range ");
+      Serial.print(targetRange);
+      Serial.println("");
     }
   
     return true;
