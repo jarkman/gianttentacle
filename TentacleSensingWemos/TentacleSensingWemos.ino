@@ -48,7 +48,7 @@
 #include <SFE_MicroOLED.h>  // Include the SFE_MicroOLED library
 #include <Adafruit_PWMServoDriver.h>
 
-#define FRUSTRATION_LIMIT 0.1 // error value above which frustration accumulates
+#define FRUSTRATION_LIMIT 0.01 // error value above which frustration accumulates
 
 
 #include "bellows.h"
@@ -59,6 +59,7 @@ boolean traceNodes = false;
 
 boolean enableBellows = true;  // turn on/off bellows code
 boolean enablePS2 = false;
+boolean enableBehaviour = true;
 boolean calibrateCompasses = false; // turn on then rotate each compass smoothly about all axes to get the individual compass min/max values for compass setup
 
 
@@ -112,7 +113,7 @@ long lastStickMoveMillis = 0; // time when stick was last moved
 float loopSeconds = 0.1; // duration of our loop() in seconds, used for normalising assorted constants
 
 // pose targets for a boot-time wriggle selftest
-#define SELFTEST_MILLIS 5000 //10000
+#define SELFTEST_MILLIS 2000 //10000
 #define NUM_SELFTEST 6
 float selftest[NUM_SELFTEST][2] = {{0.0, 0.0}, {-1.0,-1.0}, {-1.0, 1.0}, {1.0,-1.0}, {1.0, 1.0},{0.0, 0.0}};
 int nextSelftest = -1;

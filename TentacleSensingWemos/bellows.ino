@@ -1,7 +1,7 @@
 #include "bellows.h"
 
 #define MAX_BELLOWS_ANGLE 75.0 // in degrees
-#define DRIVE_GAIN -0.5
+#define DRIVE_GAIN -2.0
 
 // values tuned for the tentacle valve servos - 130/550
 #define SERVOMIN  130 //150 // this is the 'minimum' pulse length count (out of 4096)
@@ -66,7 +66,7 @@ void Bellows::loop()
   if( trace ){Serial.print("error fraction "); Serial.println(error);}
   if( trace ){Serial.print("frustration "); Serial.println(frustration);}
 
-  if( error < FRUSTRATION_LIMIT )
+  if( fabs(error) < FRUSTRATION_LIMIT )
     frustration = 0;
   else
     frustration += error * loopSeconds;

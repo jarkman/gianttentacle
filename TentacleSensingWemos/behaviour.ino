@@ -52,6 +52,9 @@ char *behaviourLabel()
 
 boolean loopBehaviour()
  {
+  if( ! enableBehaviour )
+    return false;
+    
   if( action != ACTION_NONE )
   {
     loopAction();
@@ -59,7 +62,7 @@ boolean loopBehaviour()
   }
 
   float f = fabs(baseBellows.frustration) + fabs(tipBellows.frustration);
-  if( f > 10 )
+  if( f > 3 )
   {
     startFrustrated();
   }
@@ -190,7 +193,8 @@ void loopCatch()
   if( mood < 0 )
     mood = 0;
     
-  bend( targetNode,  targetSide / 100 ); // bend toward
+  bend( targetNode, loopSeconds * (float)(targetSide) / 2.0 ); // bend away
+  
  }
 
 
@@ -199,8 +203,8 @@ void loopEvade()
   findTarget(); // leaves old target in place if it doesn't find one
   
   long duration = millis() - actionStartTime;
-  if( millis() - lastTargetTime > 10000 ||  // no targets in 10s
-      duration > 30000 )        // or just been doing this too long
+  if( millis() - lastTargetTime > 5000 ||  // no targets in 10s
+      duration > 10000 )        // or just been doing this too long
   {
     if( traceBehaviour ) Serial.println("stopping ACTION_EVADE");
   
@@ -212,7 +216,7 @@ void loopEvade()
   if( mood > 100 )
     mood = 100;
     
-  bend( targetNode,  -targetSide / 100 ); // bend away
+  bend( targetNode, - loopSeconds * (float)(targetSide) / 2.0 ); // bend away
     
   
 }
@@ -235,8 +239,8 @@ void bend( float node, float delta )
     b2 = delta;
   }
 
-  baseBellows.incrementTargetFromPosition(b1);
-  tipBellows.incrementTargetFromPosition(b2);
+  baseBellows.incrementTarget(b1);
+  tipBellows.incrementTarget(b2);
     
 }
 
@@ -274,7 +278,8 @@ boolean findTarget()
   
     if( traceBehaviour )
     { 
-      Serial.print("target node ");
+      Serial.print( actionInitial());
+      Serial.print(" new target node ");
       Serial.print(targetNode);
       Serial.print(" side ");
       Serial.print(targetSide);

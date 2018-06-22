@@ -261,7 +261,7 @@ float Node::readRanger(VL53L0X* ranger)
   }
   else
   {
-    if( range > 3000 )
+    if( range > 500 )  // 500 determined by experiment, depends on the lighting //3000 )
       range = -1;
       
     if( trace ) Serial.print("range: "); 
