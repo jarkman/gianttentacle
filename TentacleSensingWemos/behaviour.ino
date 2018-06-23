@@ -33,6 +33,13 @@ int targetNode = -1;
 int targetSide = 0; // 1 for right, -1 for left
 int targetRange = 0;
 
+#define FRUSTRATION_BASE_PERIOD 5.0
+#define FRUSTRATION_TIP_PERIOD 3.0
+#define FRUSTRATION_AMPLITUDE 0.5
+
+float frustrationCenterBase = 0.0;
+float frustrationCenterTip = 0.0;
+
 int behaviourSide()
 {
   return targetSide;
@@ -134,6 +141,8 @@ void startFrustrated()
   if( traceBehaviour ) Serial.println("starting ACTION_FRUSTRATED");
   action = ACTION_FRUSTRATED;
   actionStartTime = millis();
+  frustrationCenterBase = baseBellows.targetFraction;
+  frustrationCenterTip = tipBellows.targetFraction; 
 }
 
 
@@ -154,7 +163,7 @@ void startCatch()
 
 void loopFrustrated()
 {
-  if( baseBellows.frustration < FRUSTRATION_LIMIT && tipBellows.frustration < FRUSTRATION_LIMIT )
+  if( baseBellows.frustration < FRUSTRATION_LIMIT && tipBellows.frustration < FRUSTRATION_LIMIT && millis() - actionStartTime > 10000)
   {
     if( traceBehaviour ) Serial.println("stopping ACTION_FRUSTRATED");
   
@@ -162,6 +171,13 @@ void loopFrustrated()
     return;
   }
 
+  float basePhase = fmod((float)(millis() - actionStartTime) * 0.001, FRUSTRATION_BASE_PERIOD); // 0 to 1.0
+  float tipPhase = fmod((float)(millis() - actionStartTime) * 0.001, FRUSTRATION_TIP_PERIOD); // 0 to 1.0
+
+
+  baseBellows.target( frustrationCenterBase + sin( 2.0 * 3.14 * basePhase ) * FRUSTRATION_AMPLITUDE );
+  tipBellows.target( frustrationCenterTip + sin( 2.0 * 3.14 * tipPhase ) * FRUSTRATION_AMPLITUDE );
+/*
   // move the frustrated joint away from the source of frustration
   // if the other joint is unaffected, move that one in the other direction
   if( baseBellows.frustration < FRUSTRATION_LIMIT )
@@ -173,6 +189,7 @@ void loopFrustrated()
     tipBellows.incrementTarget(baseBellows.frustration * loopSeconds / 3.0);
   else
     tipBellows.incrementTarget(-tipBellows.frustration * loopSeconds / 3.0);
+    */
 }
 
 void loopCatch()
@@ -234,8 +251,8 @@ void bend( float node, float delta )
   }
   else
   {
-    // just bend the tip
-    b1 = 0;
+    // just bend the tip at first
+    b1 = delta * fabs(tipBellows.targetFraction);
     b2 = delta;
   }
 
@@ -244,6 +261,7 @@ void bend( float node, float delta )
     
 }
 
+// find a new target, or leave the old one in place
  
 boolean findTarget()
 {
@@ -269,7 +287,8 @@ boolean findTarget()
     }
   }
 
-  if( newTargetNode > -1 )
+  if( newTargetNode > -1 &&           // found a new target
+    lastTargetTime - millis() > 3000) // don't swap too often
   {
     targetNode = newTargetNode;
     targetSide = newTargetSide;

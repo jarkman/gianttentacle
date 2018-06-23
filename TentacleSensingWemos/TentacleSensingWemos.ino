@@ -1,3 +1,4 @@
+
 // This runs the giant inflated tentacle with 2 servo-controlled air valves,
 // taking user input from a PS2 controller,
 // with position feedback from LSM303 compass sensors (specifically, the Adafruit board)
@@ -27,6 +28,7 @@
 //    D2 SDA
 //      wired to OLED and to mux and to servo board
 // PS2 uses D3 D4 D6 D8
+// Neopixels are on D6
 // Encoder is on D5 & D7, switch on D0
 
 
@@ -58,9 +60,11 @@ boolean traceBehaviour = true;
 boolean traceNodes = false;
 
 boolean enableBellows = true;  // turn on/off bellows code
-boolean enablePS2 = false;
 boolean enableBehaviour = true;
 boolean calibrateCompasses = false; // turn on then rotate each compass smoothly about all axes to get the individual compass min/max values for compass setup
+
+//PS2 currently (a) nonworking for logic level reasons and (b) in pin conflict with LEDs
+boolean enablePS2 = false;
 
 
 void setupNodes();
@@ -130,7 +134,7 @@ void setupI2C()
 void setup() {
   setupDisplay();
   
-  delay(5000);
+  delay(2000);
   Serial.begin(115200);
 
 
@@ -149,6 +153,8 @@ void setup() {
   setupServoDriver();
 
   setupEncoder();
+
+  setupLeds();
   
   //baseServo.attach(D7); 
   //tipServo.attach(D8); 
@@ -238,6 +244,7 @@ void loop() {
   
   loopEncoder();
   loopDisplay();
+  loopLeds();
  
 
   //delay(100);
@@ -253,9 +260,11 @@ void loop() {
   if(enablePS2)
   {
     if( trace ) Serial.println("ps2");
-    //loopPS2();
+    loopPS2();
     //PS2_loop_verbose();
   }
+
+  
   loopNodes();
   if( trace ) Serial.println("basebellows");
   baseBellows.loop();
