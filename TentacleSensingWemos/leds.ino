@@ -40,9 +40,9 @@ void setupLeds() {
   strip.begin();
   strip.show(); // Initialize all pixels to 'off'
 
-  colorWipe(strip.Color(255, 0, 0), 2); // r   
-  colorWipe(strip.Color(0, 255, 0), 2); // g
-  colorWipe(strip.Color(0, 0,255), 2); // b
+  colorWipe(strip.Color(255, 0, 0), 1); // r   
+  colorWipe(strip.Color(0, 255, 0), 1); // g
+  colorWipe(strip.Color(0, 0,255), 1); // b
   /*
   for( int i = 0; i < CHEAP_STRIP_LEVELS; i ++ )
   {

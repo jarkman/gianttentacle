@@ -1,5 +1,7 @@
 #include "bellows.h"
 
+float servoLimit = 60; // constrain max servo angle to save air
+
 #define MAX_BELLOWS_ANGLE 75.0 // in degrees
 #define DRIVE_GAIN -2.0
 
@@ -84,12 +86,15 @@ void Bellows::drive( float drive ) // 0 is off, 1.0 is full-left, -1.0 is full-r
     driveServoAngle();
 }
 
+
 void Bellows::driveServoAngle()
 {
   //servoAngle = 0;
   //servoAngle=180;
   
   if( trace ){Serial.print("servo angle "); Serial.println(this->servoAngle);}
+
+  servoAngle = fconstrain( servoAngle, 90-servoLimit, 90+servoLimit);
   
   float pulseLen = fmap( servoAngle, 0, 180, SERVOMIN, SERVOMAX ); // map angle to pulse length in PWM count units
 

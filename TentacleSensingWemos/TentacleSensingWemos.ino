@@ -117,7 +117,7 @@ long lastStickMoveMillis = 0; // time when stick was last moved
 float loopSeconds = 0.1; // duration of our loop() in seconds, used for normalising assorted constants
 
 // pose targets for a boot-time wriggle selftest
-#define SELFTEST_MILLIS 2000 //10000
+#define SELFTEST_MILLIS 10000 //10000
 #define NUM_SELFTEST 6
 float selftest[NUM_SELFTEST][2] = {{0.0, 0.0}, {-1.0,-1.0}, {-1.0, 1.0}, {1.0,-1.0}, {1.0, 1.0},{0.0, 0.0}};
 int nextSelftest = -1;

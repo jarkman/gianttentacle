@@ -33,10 +33,11 @@ int targetNode = -1;
 int targetSide = 0; // 1 for right, -1 for left
 int targetRange = 0;
 
-#define FRUSTRATION_BASE_PERIOD 5.0
-#define FRUSTRATION_TIP_PERIOD 3.0
-#define FRUSTRATION_AMPLITUDE 0.5
+#define FRUSTRATION_BASE_PERIOD 20.0
+#define FRUSTRATION_TIP_PERIOD 10.0
+#define FRUSTRATION_AMPLITUDE 0.4
 
+// what position are we wiggling around ?
 float frustrationCenterBase = 0.0;
 float frustrationCenterTip = 0.0;
 
@@ -141,8 +142,8 @@ void startFrustrated()
   if( traceBehaviour ) Serial.println("starting ACTION_FRUSTRATED");
   action = ACTION_FRUSTRATED;
   actionStartTime = millis();
-  frustrationCenterBase = baseBellows.targetFraction;
-  frustrationCenterTip = tipBellows.targetFraction; 
+  frustrationCenterBase = baseBellows.currentFraction;
+  frustrationCenterTip = tipBellows.currentFraction; 
 }
 
 
@@ -163,7 +164,8 @@ void startCatch()
 
 void loopFrustrated()
 {
-  if( baseBellows.frustration < FRUSTRATION_LIMIT && tipBellows.frustration < FRUSTRATION_LIMIT && millis() - actionStartTime > 10000)
+  if( ((baseBellows.frustration < FRUSTRATION_LIMIT && tipBellows.frustration < FRUSTRATION_LIMIT) && millis() - actionStartTime > 10000) ||
+      millis() - actionStartTime > 20000 )
   {
     if( traceBehaviour ) Serial.println("stopping ACTION_FRUSTRATED");
   
@@ -171,12 +173,17 @@ void loopFrustrated()
     return;
   }
 
-  float basePhase = fmod((float)(millis() - actionStartTime) * 0.001, FRUSTRATION_BASE_PERIOD); // 0 to 1.0
-  float tipPhase = fmod((float)(millis() - actionStartTime) * 0.001, FRUSTRATION_TIP_PERIOD); // 0 to 1.0
+  float basePhase = fmod((float)(millis() - actionStartTime) * 0.001 / FRUSTRATION_BASE_PERIOD, FRUSTRATION_BASE_PERIOD); // 0 to 1.0
+  float tipPhase = fmod((float)(millis() - actionStartTime) * 0.001 / FRUSTRATION_TIP_PERIOD, FRUSTRATION_TIP_PERIOD); // 0 to 1.0
 
 
   baseBellows.target( frustrationCenterBase + sin( 2.0 * 3.14 * basePhase ) * FRUSTRATION_AMPLITUDE );
   tipBellows.target( frustrationCenterTip + sin( 2.0 * 3.14 * tipPhase ) * FRUSTRATION_AMPLITUDE );
+
+  float restoreFraction = loopSeconds * 0.05;
+  
+  frustrationCenterBase *= 1.0-restoreFraction;
+  frustrationCenterTip *= 1.0-restoreFraction;
 /*
   // move the frustrated joint away from the source of frustration
   // if the other joint is unaffected, move that one in the other direction
