@@ -14,9 +14,7 @@
 //   NEO_GRB     Pixels are wired for GRB bitstream (most NeoPixel products)
 //   NEO_RGB     Pixels are wired for RGB bitstream (v1 FLORA pixels, not v2)
 //   NEO_RGBW    Pixels are wired for RGBW bitstream (NeoPixel RGBW products)
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(60 * 5, PIN, NEO_BGR + NEO_KHZ400);
-
-#define CHEAP_STRIP_LEVELS 16.0 // my cheap LED strip only uses the bottom 4 bits!
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(60 * 5, PIN, NEO_GRB + NEO_KHZ800);
 
 // IMPORTANT: To reduce NeoPixel burnout risk, add 1000 uF capacitor across
 // pixel power leads, add 300 - 500 Ohm resistor on first pixel's data input
@@ -71,7 +69,7 @@ void loopLeds()
       
       int r = 0;
 
-      float phase = (float) (i % (int) ledsPerCycle)/ledsPerCycle; // 0->1.0
+      float phase = ((float) (i % (int) ledsPerCycle))/ledsPerCycle; // 0->1.0
 
       phase = fmod( phase + timeOffset, 1.0  ); // move it along
       
@@ -81,7 +79,7 @@ void loopLeds()
       ig = 0.7 * ig + 0.3;
       ib = 0.7 * ib + 0.3;
       
-      uint32_t c = strip.Color(r, (int) (CHEAP_STRIP_LEVELS * ig),(int) (CHEAP_STRIP_LEVELS * ib));
+      uint32_t c = strip.Color(r, (int) (ig*255.0),(int) ( ib*255.0));
       strip.setPixelColor(i, c);
     }
     strip.show();
